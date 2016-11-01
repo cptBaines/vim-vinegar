@@ -78,10 +78,19 @@ function! s:setup_vinegar() abort
   if empty(s:netrw_up)
     " save netrw mapping
     let s:netrw_up = substitute(maparg('-', 'n'), '\c^:\%(<c-u>\)\=', '', '')
-    " saved string is like this:
-    " :exe "norm! 0"|call netrw#LocalBrowseCheck(<SNR>172_NetrwBrowseChgDir(1,'../'))<CR>
-    " remove <CR> at the end (otherwise raises "E488: Trailing characters")
-    let s:netrw_up = strpart(s:netrw_up, 0, strlen(s:netrw_up)-4)
+    if v:version >= 800
+    	" mapping for '-' has changed. It's now 
+   	" :<c-u>call <SID>NetrwBrowseUpDir(1)<cr>
+	" to get it to work and avoid "E488" we need to strip both prefix
+	" :<c-u> and trailing  <cr>
+    	let s:netrw_up = strpart(s:netrw_up, 6, strlen(s:netrw_up)-10)
+    else
+	" old 700 version
+    	" saved string is like this:
+    	" :exe "norm! 0"|call netrw#LocalBrowseCheck(<SNR>172_NetrwBrowseChgDir(1,'../'))<CR>
+    	" remove <CR> at the end (otherwise raises "E488: Trailing characters")
+    	let s:netrw_up = strpart(s:netrw_up, 0, strlen(s:netrw_up)-4)
+    endif
   endif
   nmap <buffer> - <Plug>VinegarUp
   nnoremap <buffer> ~ :edit ~/<CR>
